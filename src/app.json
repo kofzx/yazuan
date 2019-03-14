@@ -1,0 +1,18 @@
+{
+	"pages": [
+		"pages/index/main",
+		"pages/category/main"
+	],
+	"window": {
+		"backgroundTextStyle": "light",
+		"navigationBarBackgroundColor": "#fff",
+		"navigationBarTitleText": "雅钻珠宝",
+		"navigationBarTextStyle": "black"
+	},
+	"plugins": {
+		"tencentvideo": {
+			"version": "1.2.5",
+			"provider": "wxa75efa648b60994b"
+		}
+	}
+}
