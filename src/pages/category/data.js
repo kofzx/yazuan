@@ -1,4 +1,31 @@
 const data = {
+	"cates": [
+		{
+			"id": 1,
+			"pic": require("../../images/index/new-product-bg.jpg"),
+			"name": "戒指",
+		},
+		{
+			"id": 2,
+			"pic": require("../../images/index/new-product-bg.jpg"),
+			"name": "项链",
+		},
+		{
+			"id": 3,
+			"pic": require("../../images/index/new-product-bg.jpg"),
+			"name": "耳坠",
+		},
+		{
+			"id": 4,
+			"pic": require("../../images/index/new-product-bg.jpg"),
+			"name": "手链",
+		},
+		{
+			"id": 5,
+			"pic": require("../../images/index/new-product-bg.jpg"),
+			"name": "手镯",
+		}
+	],
 	"categories": [
 		{
 			"id": 4,

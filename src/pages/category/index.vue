@@ -6,7 +6,7 @@
 			<div 
 				class="cate"
 				:class="{ active: cate.id === cateActive }"
-				v-for="cate in categories"
+				v-for="cate in cates"
 				:key="cate"
 				@click="cateChange(cate.id)">
 				{{cate.name}}
@@ -15,39 +15,30 @@
 		</scroll-view>
 		<scroll-view
 			:scroll-y="true"
-			:scroll-with-animation="true"
-			:scroll-into-view="toView"
-			:scroll-top="scrollTop"
-			class="contents bkc-white"
-			@scroll="contentsScroll">
+			class="contents bkc-white">
+			<!-- 一级分类横条图片 -->
+			<div class="cate-pic-box">
+				<div class="short-line"></div>
+				<span class="cate-name">{{cateObject.name}}</span>
+				<div class="short-line"></div>
+				<img :src="cateObject.pic" class="cate-pic">
+			</div>
 			<block
-				v-for="(first_cat, first_cat_index) in categories"
+				v-for="(first_cat, first_cat_index) in contents"
 				:key="first_cat">
-				<!-- 一级分类横条图片 -->
-				<div 
-					class="cate-pic-box"
-					:id="catePrefix + first_cat.id">
-					<div class="short-line"></div>
-					<span class="cate-name">{{first_cat.name}}</span>
-					<div class="short-line"></div>
-					<img :src="first_cat.pic" class="cate-pic">
-				</div>
 				<!-- 二级分类 -->
-				<div 
-					class="contents__child"
-					v-for="(second_cat, second_cat_index) in first_cat.child"
-					:key="second_cat">
+				<div class="contents__child">
 					<!-- 二级分类名 -->
-					<div class="cate-name">{{second_cat.name}}</div>
+					<div class="cate-name">{{first_cat.name}}</div>
 					<!-- 主体内容 -->
 					<div 
 						class="contents__grandson__item"
-						v-for="(item, index) in second_cat.child"
-						:key="item">
-						<img :src="item.pic" class="pic">
+						v-for="(second_cat, second_cat_index) in first_cat.child"
+						:key="second_cat">
+						<img :src="second_cat.pic" class="pic">
 						<div class="main-info">
-							<div class="name">{{item.name}}</div>
-							<span class="price">{{item.price}}</span>
+							<div class="name">{{second_cat.name}}</div>
+							<span class="price">{{second_cat.price}}</span>
 							<yz-cart-icon size="mini" />
 						</div>
 					</div>
@@ -60,25 +51,44 @@
 
 <script>
 	import data from './data';
-	import throttle from 'utils/throttle';
 	import cartIcon from 'components/cart-icon/index.vue';
 
 	export default {
 		name: '',
 		data () {
 			return {
+				cates: data.cates,
 				categories: data.categories,
-				cateActive: 0,
+				contents: [],
+				cateObject: {},
+				cateActive: 1,
 			}
 		},
 		methods: {
+			_setActive (id) {
+				this.cateActive = id;
+				const index = this.cates.findIndex(cate => cate.id === id);
+
+				this.$set(this.cateObject, "name", this.cates[index].name);
+				this.$set(this.cateObject, "pic", this.cates[index].pic);
+			},
 			// 分类点击事件
 			cateChange (id) {
-
+				this._setActive(id);
+				this.loadContents(id);
 			},
+			loadContents (id) {
+				wx.request({
+					url: "http://www.localtest_yazuan.com/category.php?id=" + id,
+					success: res => {
+						this.contents = res.data;
+					}
+				});
+			}
 		},
 		onLoad () {
-			
+			this._setActive(1);
+			this.loadContents(1);
 		},
 		components: {
 			'yz-cart-icon': cartIcon
