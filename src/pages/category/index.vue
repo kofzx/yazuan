@@ -39,13 +39,20 @@
 						<div class="main-info">
 							<div class="name">{{second_cat.name}}</div>
 							<span class="price">{{second_cat.price}}</span>
-							<yz-cart-icon size="mini" />
+							<yz-cart-icon 
+								size="mini"
+								@click="addToCart(second_cat.id)" />
+							<span 
+								class="ball"
+								style="transition: all 0.4s ease;"
+								:style="{ bottom: second_cat.id === contentActive ? '-50px' : '-5px', right: second_cat.id === contentActive ? '100px' : '0px' }"></span>
 						</div>
 					</div>
 				</div>
 			</block>
 			<div class="contents__grandson__item--hack"></div>
 		</scroll-view>
+		<div class="cart-basket"></div>
 	</div>
 </template>
 
@@ -62,6 +69,7 @@
 				contents: [],
 				cateObject: {},
 				cateActive: 1,
+				contentActive: 0,
 			}
 		},
 		methods: {
@@ -84,6 +92,9 @@
 						this.contents = res.data;
 					}
 				});
+			},
+			addToCart (id) {
+				this.contentActive = id;
 			}
 		},
 		onLoad () {
@@ -180,4 +191,21 @@
 	.cart-icon
 		right: 0
 		bottom: -5px
+		z-index: 1
+	.ball
+		size(20px, 20px)
+		display: inline-block
+		position: absolute
+		background-color: #fff5e5
+		border-radius: 50%
+		right: 0
+		bottom: -5px
+	.cart-basket
+		size(48px, 48px)
+		position: fixed
+		right: 36px
+		bottom: 43px
+		box-shadow: 0px -4px 16px 0px rgba(39,39,39,0.15), 0px 7px 16px 0px rgba(39,39,39,0.15)
+		border-radius: 50%
+		background-color: #ffffff
 </style>
