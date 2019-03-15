@@ -124,6 +124,7 @@
 				}, 500);
 			}
 		},
+		// lalala
 		onLoad () {
 			this._setActive(4);
 			this.setRects();
