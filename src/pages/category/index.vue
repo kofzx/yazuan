@@ -63,70 +63,22 @@
 	import throttle from 'utils/throttle';
 	import cartIcon from 'components/cart-icon/index.vue';
 
-	const CATE_PREFIX = 'cate';		// cate.id的前缀
-
 	export default {
 		name: '',
 		data () {
 			return {
 				categories: data.categories,
-				catePrefix: CATE_PREFIX,
 				cateActive: 0,
-				scrollTop: 0,
-				toView: null,
-				rects: null,
 			}
 		},
 		methods: {
-			_setActive (id) {
-				this.cateActive = id;
-				this.toView = CATE_PREFIX + id;
-			},
-			_toView2id (toView) {
-				return parseInt(toView.substring(CATE_PREFIX.length));
-			},
 			// 分类点击事件
 			cateChange (id) {
-				this._setActive(id);
-			},
-			// 右侧内容滚动事件
-			contentsScroll (e) {
-				const scrollTop = e.mp.detail.scrollTop;
-				const { cateActive, toView, rects } = this;
 
-				const index = rects.findIndex(rect => cateActive === this._toView2id(rect.id));
-				const currentTop = rects[index].top;
-				const prevTop = rects[index - 1] ? rects[index - 1].top : 0;
-				const nextTop = rects[index + 1] ? rects[index + 1].top : 0;
-
-				throttle(() => {
-					if (prevTop && scrollTop < prevTop) {
-						this.cateActive = this._toView2id(rects[index - 1].id);
-					} else if (nextTop && scrollTop > nextTop) {
-						this.cateActive = this._toView2id(rects[index + 1].id);
-					}
-				}, 50)();
 			},
-			// 设置矩形相关信息，主要是top
-			setRects () {
-				setTimeout(() => {
-					wx.createSelectorQuery()
-						.selectAll('.cate-pic-box')
-						.boundingClientRect(rects => {
-				      		const res = rects.map(rect => {
-				      			return {
-				      				id: rect.id,
-				      				top: rect.top
-				      			}
-				      		});
-				      		this.rects = res;
-				    	}).exec();
-				}, 500);
-			}
 		},
 		onLoad () {
-			this._setActive(4);
-			this.setRects();
+			
 		},
 		components: {
 			'yz-cart-icon': cartIcon
