@@ -9,7 +9,7 @@
 				v-for="cate in categories"
 				:key="cate"
 				@click="cateChange(cate.id)">
-				{{cate.name}}
+				{{cate.type_name}}
 			</div>
 			<div class="cate cate--hack"></div>
 		</scroll-view>
@@ -61,6 +61,7 @@
 <script>
 	import data from './data';
 	import throttle from 'utils/throttle';
+	import { get } from 'api';
 	import cartIcon from 'components/cart-icon/index.vue';
 
 	const CATE_PREFIX = 'cate';		// cate.id的前缀
@@ -69,12 +70,14 @@
 		name: '',
 		data () {
 			return {
-				categories: data.categories,
+				// categories: data.categories,
 				catePrefix: CATE_PREFIX,
 				cateActive: 0,
 				scrollTop: 0,
 				toView: null,
 				rects: null,
+				// real
+				categories: []
 			}
 		},
 		methods: {
@@ -122,12 +125,32 @@
 				      		this.rects = res;
 				    	}).exec();
 				}, 500);
+			},
+			loadCategories () {
+				return new Promise(resolve => {
+					get('good/type')
+						.then(res => {
+							const categories = res.data;
+							const id = categories[0].id;
+
+							this.categories = categories;
+							this.cateActive = id;
+							resolve(id);
+						});
+				});
+			},
+			loadGoods (id) {
+				get('good/typegood', { id: id })
+					.then(res => {
+						console.log(res);
+					});
 			}
 		},
-		// lalala
-		onLoad () {
-			this._setActive(4);
-			this.setRects();
+		async onLoad () {
+			let id = await this.loadCategories();
+			this.loadGoods(id);
+			// this._setActive(4);
+			// this.setRects();
 		},
 		components: {
 			'yz-cart-icon': cartIcon

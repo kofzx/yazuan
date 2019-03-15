@@ -1,4 +1,4 @@
-const apiUrl = 'https://wxmini.iapcn.com/api/';
+const apiUrl = 'https://yazuan.iapcn.com/api/';
 
 const http = ({
     url = '',
@@ -64,8 +64,8 @@ const post = (url, param = {}) => {
     })
 }
 
-export default {
+export {
     apiUrl,
     get,
     post
-}
+};
