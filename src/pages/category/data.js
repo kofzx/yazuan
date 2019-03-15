@@ -147,7 +147,7 @@ const data = {
 			]
 		},
 		{
-			"id": 5,
+			"id": 6,
 			"pic": require("../../images/index/new-product-bg.jpg"),
 			"name": "耳坠",
 			"child": [
@@ -220,7 +220,7 @@ const data = {
 			]
 		},
 		{
-			"id": 5,
+			"id": 7,
 			"pic": require("../../images/index/new-product-bg.jpg"),
 			"name": "手链",
 			"child": [
@@ -293,7 +293,7 @@ const data = {
 			]
 		},
 		{
-			"id": 5,
+			"id": 8,
 			"pic": require("../../images/index/new-product-bg.jpg"),
 			"name": "手镯",
 			"child": [
@@ -366,7 +366,7 @@ const data = {
 			]
 		},
 		{
-			"id": 5,
+			"id": 9,
 			"pic": require("../../images/index/new-product-bg.jpg"),
 			"name": "摆件",
 			"child": [
@@ -439,7 +439,7 @@ const data = {
 			]
 		},
 		{
-			"id": 5,
+			"id": 10,
 			"pic": require("../../images/index/new-product-bg.jpg"),
 			"name": "项链",
 			"child": [
@@ -512,7 +512,7 @@ const data = {
 			]
 		},
 		{
-			"id": 5,
+			"id": 11,
 			"pic": require("../../images/index/new-product-bg.jpg"),
 			"name": "耳坠",
 			"child": [
@@ -585,7 +585,7 @@ const data = {
 			]
 		},
 		{
-			"id": 5,
+			"id": 12,
 			"pic": require("../../images/index/selling3.png"),
 			"name": "手链",
 			"child": [
@@ -658,7 +658,7 @@ const data = {
 			]
 		},
 		{
-			"id": 5,
+			"id": 13,
 			"pic": require("../../images/index/selling3.png"),
 			"name": "手镯",
 			"child": [
@@ -731,7 +731,7 @@ const data = {
 			]
 		},
 		{
-			"id": 5,
+			"id": 14,
 			"pic": require("../../images/index/selling3.png"),
 			"name": "摆件",
 			"child": [
@@ -804,7 +804,7 @@ const data = {
 			]
 		},
 		{
-			"id": 5,
+			"id": 15,
 			"pic": require("../../images/index/selling3.png"),
 			"name": "摆件",
 			"child": [
@@ -877,7 +877,7 @@ const data = {
 			]
 		},
 		{
-			"id": 5,
+			"id": 16,
 			"pic": require("../../images/index/selling3.png"),
 			"name": "摆件",
 			"child": [
@@ -950,7 +950,7 @@ const data = {
 			]
 		},
 		{
-			"id": 5,
+			"id": 17,
 			"pic": require("../../images/index/selling3.png"),
 			"name": "摆件",
 			"child": [

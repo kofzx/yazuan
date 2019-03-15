@@ -358,6 +358,7 @@
 					font-weight: bold
 					color: #FA4A1F
 					margin-bottom: 9px
+					yuan()
 				.sold-count
 					font-size: 10px
 					color: #B3B3B3

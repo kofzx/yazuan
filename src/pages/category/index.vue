@@ -5,21 +5,28 @@
 			class="categories">
 			<div 
 				class="cate"
-				:class="{ active: cate.id === 4 }"
+				:class="{ active: cate.id === cateActive }"
 				v-for="cate in categories"
-				:key="cate">
+				:key="cate"
+				@click="cateChange(cate.id)">
 				{{cate.name}}
 			</div>
 			<div class="cate cate--hack"></div>
 		</scroll-view>
 		<scroll-view
 			:scroll-y="true"
-			class="contents bkc-white">
+			:scroll-with-animation="true"
+			:scroll-into-view="toView"
+			:scroll-top="scrollTop"
+			class="contents bkc-white"
+			@scroll="contentsScroll">
 			<block
 				v-for="(first_cat, first_cat_index) in categories"
 				:key="first_cat">
 				<!-- 一级分类横条图片 -->
-				<div class="cate-pic-box">
+				<div 
+					class="cate-pic-box"
+					:id="catePrefix + first_cat.id">
 					<div class="short-line"></div>
 					<span class="cate-name">{{first_cat.name}}</span>
 					<div class="short-line"></div>
@@ -46,24 +53,80 @@
 					</div>
 				</div>
 			</block>
+			<div class="contents__grandson__item--hack"></div>
 		</scroll-view>
 	</div>
 </template>
 
 <script>
 	import data from './data';
+	import throttle from 'utils/throttle';
 	import cartIcon from 'components/cart-icon/index.vue';
+
+	const CATE_PREFIX = 'cate';		// cate.id的前缀
 
 	export default {
 		name: '',
 		data () {
 			return {
-				windowHeight: 100,
 				categories: data.categories,
+				catePrefix: CATE_PREFIX,
+				cateActive: 0,
+				scrollTop: 0,
+				toView: null,
+				rects: null,
+			}
+		},
+		methods: {
+			_setActive (id) {
+				this.cateActive = id;
+				this.toView = CATE_PREFIX + id;
+			},
+			_toView2id (toView) {
+				return parseInt(toView.substring(CATE_PREFIX.length));
+			},
+			// 分类点击事件
+			cateChange (id) {
+				this._setActive(id);
+			},
+			// 右侧内容滚动事件
+			contentsScroll (e) {
+				const scrollTop = e.mp.detail.scrollTop;
+				const { cateActive, toView, rects } = this;
+
+				const index = rects.findIndex(rect => cateActive === this._toView2id(rect.id));
+				const currentTop = rects[index].top;
+				const prevTop = rects[index - 1] ? rects[index - 1].top : 0;
+				const nextTop = rects[index + 1] ? rects[index + 1].top : 0;
+
+				throttle(() => {
+					if (prevTop && scrollTop < prevTop) {
+						this.cateActive = this._toView2id(rects[index - 1].id);
+					} else if (nextTop && scrollTop > nextTop) {
+						this.cateActive = this._toView2id(rects[index + 1].id);
+					}
+				}, 50)();
+			},
+			// 设置矩形相关信息，主要是top
+			setRects () {
+				setTimeout(() => {
+					wx.createSelectorQuery()
+						.selectAll('.cate-pic-box')
+						.boundingClientRect(rects => {
+				      		const res = rects.map(rect => {
+				      			return {
+				      				id: rect.id,
+				      				top: rect.top
+				      			}
+				      		});
+				      		this.rects = res;
+				    	}).exec();
+				}, 500);
 			}
 		},
 		onLoad () {
-			console.log(this.categories);
+			this._setActive(4);
+			this.setRects();
 		},
 		components: {
 			'yz-cart-icon': cartIcon
@@ -72,6 +135,7 @@
 </script>
 
 <style lang="stylus">
+	$contents__grandson__item-h = 79.5px
 	// 左侧分类
 	.categories
 		size(85px, 667px)
@@ -129,7 +193,7 @@
 				align-items: stretch
 				margin-top: 22px
 				.pic
-					size(79.5px, 79.5px)
+					size(79.5px, $contents__grandson__item-h)
 					margin-right: 12px
 				.main-info
 					flex: 1
@@ -146,6 +210,11 @@
 						font-size: 11px
 						font-weight: bold
 						color: #FA4A1F
+						yuan()
+						&::before
+							margin-right: 6px
+	.contents__grandson__item--hack
+		height: $contents__grandson__item-h * 1.5
 	.cart-icon
 		right: 0
 		bottom: -5px

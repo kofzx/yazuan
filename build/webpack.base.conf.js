@@ -48,6 +48,7 @@ let baseWebpackConfig = {
       'vue': 'mpvue',
       '@': resolve('src'),
       'api': resolve('src/utils/api'),
+      'utils': resolve('src/utils'),
       'common': resolve('src/common'),
       'components': resolve('src/components'),
     },
