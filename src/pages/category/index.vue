@@ -85,6 +85,7 @@
 				this._setActive(id);
 				this.loadContents(id);
 			},
+			// 加载右侧内容
 			loadContents (id) {
 				wx.request({
 					url: "http://www.localtest_yazuan.com/category.php?id=" + id,
@@ -93,13 +94,19 @@
 					}
 				});
 			},
+			// 添加购物车
 			addToCart (id) {
 				this.contentActive = id;
+			},
+			// 获取购物车篮的rect信息
+			getCartBasketRect () {
+				
 			}
 		},
 		onLoad () {
 			this._setActive(1);
 			this.loadContents(1);
+			this.getCartBasketRect();
 		},
 		components: {
 			'yz-cart-icon': cartIcon
