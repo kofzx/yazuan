@@ -70,6 +70,8 @@
 				cateObject: {},
 				cateActive: 1,
 				contentActive: 0,
+				offsetRight: 0,
+				offsetBottom: 0,
 			}
 		},
 		methods: {
@@ -84,6 +86,9 @@
 			cateChange (id) {
 				this._setActive(id);
 				this.loadContents(id);
+				let rect = this.getRect(`ball${id}`);
+
+				console.log(rect);
 			},
 			// 加载右侧内容
 			loadContents (id) {
@@ -98,15 +103,29 @@
 			addToCart (id) {
 				this.contentActive = id;
 			},
-			// 获取购物车篮的rect信息
-			getCartBasketRect () {
-				
+			/**
+			 * 获取对应className的rect信息
+			 * @return rect
+			*/
+			getRect (className) {
+				return new Promise(resolve => {
+					wx.createSelectorQuery()
+						.selectAll('.' + className)
+						.boundingClientRect(rects => {
+				      		rects.map(rect => {
+				      			resolve(rect);
+				      		});
+				    	}).exec();
+				})
+			},
+			async getCartBasketRect () {
+				return this.getRect('cart-basket');
 			}
 		},
-		onLoad () {
+		async onLoad () {
 			this._setActive(1);
 			this.loadContents(1);
-			this.getCartBasketRect();
+			let rect = await this.getCartBasketRect();
 		},
 		components: {
 			'yz-cart-icon': cartIcon
