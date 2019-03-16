@@ -41,11 +41,11 @@
 							<span class="price">{{second_cat.price}}</span>
 							<yz-cart-icon 
 								size="mini"
+								:id="second_cat.id"
 								@click="addToCart(second_cat.id)" />
 							<span 
 								class="ball"
-								style="transition: all 0.4s ease;"
-								:style="{ bottom: second_cat.id === contentActive ? '-50px' : '-5px', right: second_cat.id === contentActive ? '100px' : '0px' }"></span>
+								:style="[ (inited && second_cat.id === contentActive) ? 'display: block; transition: all 0.4s cubic-bezier(.14,.57,.45,1); bottom: ' + -offsetBottom + 'px; right: ' + offsetRight + 'px' : 'bottom: -5px; right: 0px' ]"></span>
 						</div>
 					</div>
 				</div>
@@ -72,6 +72,8 @@
 				contentActive: 0,
 				offsetRight: 0,
 				offsetBottom: 0,
+				cartBasketRect: {},		// 购物车篮的rect信息
+				inited: false,
 			}
 		},
 		methods: {
@@ -86,9 +88,6 @@
 			cateChange (id) {
 				this._setActive(id);
 				this.loadContents(id);
-				let rect = this.getRect(`ball${id}`);
-
-				console.log(rect);
 			},
 			// 加载右侧内容
 			loadContents (id) {
@@ -100,8 +99,19 @@
 				});
 			},
 			// 添加购物车
-			addToCart (id) {
+			async addToCart (id) {
 				this.contentActive = id;
+				this.inited = true;
+
+				const cartBasketRect = this.cartBasketRect;
+				let rect = await this.getRect(`cartIcon${id}`);
+
+				this.offsetRight = (cartBasketRect.right + cartBasketRect.width - rect.right + rect.width) / 1.5;
+				this.offsetBottom = cartBasketRect.top - rect.top + rect.height;
+
+				setTimeout(() => {
+					this.inited = false;
+				}, 400);
 			},
 			/**
 			 * 获取对应className的rect信息
@@ -125,7 +135,7 @@
 		async onLoad () {
 			this._setActive(1);
 			this.loadContents(1);
-			let rect = await this.getCartBasketRect();
+			this.cartBasketRect = await this.getCartBasketRect();
 		},
 		components: {
 			'yz-cart-icon': cartIcon
@@ -222,7 +232,7 @@
 		size(20px, 20px)
 		display: inline-block
 		position: absolute
-		background-color: #fff5e5
+		background-color: red
 		border-radius: 50%
 		right: 0
 		bottom: -5px

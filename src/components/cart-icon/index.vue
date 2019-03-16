@@ -1,7 +1,7 @@
 <template>
 	<span 
 		class="cart-icon" 
-		:class="'cart-icon--' + size"
+		:class="['cart-icon--' + size, 'cartIcon' + id]"
 		@click="onClick"></span>
 </template>
 
@@ -12,7 +12,8 @@
 			size: {
 				type: String,
 				default: "normal"
-			}
+			},
+			id: String | Number,
 		},
 		methods: {
 			onClick () {
