@@ -42,14 +42,7 @@
 							<yz-cart-icon 
 								size="mini"
 								:id="second_cat.id"
-								@click="addToCart(second_cat.id)" />
-							<div 
-								class="ball"
-								:style="[ (inited && second_cat.id === contentActive) ? 'display: block; transition: all 0.4s cubic-bezier(.69,-0.25,1,.04); transform: translate3d(0, ' + offsetBottom + 'px,0);' : 'bottom: -5px; right: 0px' ]">
-								<span 
-									class="inner"
-									:style="[ (inited && second_cat.id === contentActive) ? 'display: block; transition: all 0.4s linear; transform: translate3d( ' + -offsetRight + 'px,0,0);' : '' ]"></span>
-							</div>
+								@click="addToCart" />
 						</div>
 					</div>
 				</div>
@@ -57,11 +50,16 @@
 			<div class="contents__grandson__item--hack"></div>
 		</scroll-view>
 		<div class="cart-basket"></div>
+		<div 
+			class="ball"
+			:class="[ inited ? 'show' : 'hide' ]"
+			:style="[ 'left: ' + bus_x + 'px; top: ' + bus_y + 'px;']"></div>
 	</div>
 </template>
 
 <script>
 	import data from './data';
+	import util from 'utils';
 	import cartIcon from 'components/cart-icon/index.vue';
 
 	export default {
@@ -74,10 +72,13 @@
 				cateObject: {},
 				cateActive: 1,
 				contentActive: 0,
-				offsetRight: 0,
-				offsetBottom: 0,
 				cartBasketRect: {},		// 购物车篮的rect信息
-				inited: true,
+				inited: false,
+				bus_x: null,
+				bus_y: null,
+				finger: {},
+				busPos: {},
+
 			}
 		},
 		methods: {
@@ -103,20 +104,55 @@
 				});
 			},
 			// 添加购物车
-			async addToCart (id) {
-				this.contentActive = id;
-				this.inited = true;
+			addToCart (e) {
+				this.contentActive = e.mp.currentTarget.id;
 
-				const cartBasketRect = this.cartBasketRect;
-				let rect = await this.getRect(`cartIcon${id}`);
+				var topPoint = {};
+			    this.finger['x'] = e.touches["0"].clientX;//点击的位置
+			    this.finger['y'] = e.touches["0"].clientY;
 
-				this.offsetRight = (cartBasketRect.right + cartBasketRect.width - rect.right + rect.width) / 1.5;
-				this.offsetBottom = cartBasketRect.top - rect.top + rect.height;
+			    if (this.finger['y'] < this.busPos['y']) {
+			      topPoint['y'] = this.finger['y'] - 150;
+			    } else {
+			      topPoint['y'] = this.busPos['y'] - 150;
+			    }
+			    topPoint['x'] = Math.abs(this.finger['x'] - this.busPos['x']) / 2;
 
-				setTimeout(() => {
-					this.inited = false;
-				}, 400);
+			    if (this.finger['x'] > this.busPos['x']) {
+			      topPoint['x'] = (this.finger['x'] - this.busPos['x']) / 2 + this.busPos['x'];
+			    } else {
+			      topPoint['x'] = (this.busPos['x'] - this.finger['x']) / 2 + this.finger['x'];
+			    }
+
+			    this.linePos = util.bezier([this.busPos, topPoint, this.finger], 50);
+			    this.startAnimation(e);
 			},
+			startAnimation (e) {
+			    var index = 0, that = this,
+			      bezier_points = that.linePos['bezier_points'];
+			    var delay = 35;
+
+			    this.inited = true;
+			    this.bus_x = that.finger['x'];
+			    this.bus_y = that.finger['y'];
+			    var len = bezier_points.length;
+			    index = len;
+			    this.timer = setInterval(function () {
+			      for(let i = index - 1; i > -1; i--) {
+			      	setTimeout(() => {
+			      		that.bus_x = bezier_points[i]['x'];
+			        	that.bus_y = bezier_points[i]['y'];
+			      	}, delay);
+
+			        if (i < 1) {
+			          clearInterval(that.timer);
+			          setTimeout(() => {
+			          	that.inited = false;
+			          }, delay * 10)
+			        }
+			      }
+			    }, delay);
+			  },
 			/**
 			 * 获取对应className的rect信息
 			 * @return rect
@@ -140,6 +176,9 @@
 			this._setActive(1);
 			this.loadContents(1);
 			this.cartBasketRect = await this.getCartBasketRect();
+
+			this.busPos['x'] = this.cartBasketRect.left + this.cartBasketRect.width / 2 - 10;
+    		this.busPos['y'] = this.cartBasketRect.top;
 		},
 		components: {
 			'yz-cart-icon': cartIcon
@@ -149,6 +188,10 @@
 
 <style lang="stylus">
 	$contents__grandson__item-h = 79.5px
+	.show
+		display: block !important
+	.hide 
+		display: none !important
 	// 左侧分类
 	.categories
 		size(85px, 667px)
@@ -233,14 +276,15 @@
 		bottom: -5px
 		z-index: 1
 	.ball
-		position: absolute
-		right: 0
-		bottom: -5px
-		.inner
-			display: inline-block
-			size(20px, 20px)
-			background-color: red
-			border-radius: 50%
+		display: inline-block
+		size(20px, 20px)
+		position: fixed
+		left: 50%
+		top: 50%
+		overflow: hidden
+		z-index: 1
+		background-color: red
+		border-radius: 50%
 	.cart-basket
 		size(48px, 48px)
 		position: fixed
