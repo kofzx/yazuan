@@ -51,10 +51,12 @@
 		<div class="cart-basket"></div>
 		<div 
 			class="ball"
-			:style="[ inited ? 'display: block; transition: all 0.5s ease-in; transform: translate3d(0, ' + offsetY + 'px,0); top: ' + ballY + 'px;' : '' ]">
+			v-for="ball in balls"
+			:key="ball"
+			:style="[ ball.inited ? 'transition: transform 0.5s ease-in; transform: translate3d(0, ' + offsetY + 'px,0); top: ' + ballY + 'px;' : '' ]">
 			<span 
 				class="inner"
-				:style="[ inited ? 'display: block; transition: all 0.4s linear; transform: translate3d( ' + offsetX + 'px,0,0); left: ' + ballX + 'px' : '' ]"></span>
+				:style="[ ball.inited ? 'transition: transform 0.5s linear; transform: translate3d( ' + offsetX + 'px,0,0); left: ' + ballX + 'px; opacity: 1;' : '' ]"></span>
 		</div>
 	</div>
 </template>
@@ -62,6 +64,16 @@
 <script>
 	import data from './data';
 	import cartIcon from 'components/cart-icon/index.vue';
+
+	const BALLS_LENGTH = 5,
+		  BALL_HALF = 10;
+	function getBalls() {
+		let balls = [];
+		for (let i = 0; i < BALLS_LENGTH; i++) {
+			balls.push({ inited: false });
+		}
+		return balls;
+	}
 
 	export default {
 		name: '',
@@ -73,11 +85,11 @@
 				cateObject: {},
 				cateActive: 1,
 				cartBasketRect: {},		// 购物车篮的rect信息
-				inited: false,
 				offsetX:0,
 				offsetY: 0,
 				ballX: 0,
 				ballY: 0,
+				balls: getBalls(),
 			}
 		},
 		methods: {
@@ -104,19 +116,26 @@
 			},
 			// 添加购物车
 			addToCart (e) {
-				this.inited = true;
-				const ballX = e.mp.touches[0].clientX - 10,
-					  ballY = e.mp.touches[0].clientY - 10;
+				const ballX = e.mp.touches[0].clientX - BALL_HALF,
+					  ballY = e.mp.touches[0].clientY - BALL_HALF;
 
 				this.ballX = ballX;
 				this.ballY = ballY;
 
-				this.offsetX = -Math.abs(this.cartBasketRect.left - ballX + 10);
-				this.offsetY = Math.abs(this.cartBasketRect.top - ballY - 10);
+				this.offsetX = -Math.abs(this.cartBasketRect.left - ballX + BALL_HALF);
+				this.offsetY = Math.abs(this.cartBasketRect.top - ballY - BALL_HALF);
 
-				setTimeout(() => {
-					this.inited = false;
-				}, 500);
+				for (let i = 0; i < BALLS_LENGTH; i++) {
+					const ball = this.balls[i];
+					if (!ball.inited) {
+			            ball.inited = true;
+
+						setTimeout(() => {
+							ball.inited = false;
+						}, 500);
+			            break;
+			        }
+				}
 			},
 			getBasketRect () {
 				return new Promise(resolve => {
@@ -234,6 +253,7 @@
 			display: block
 			background-color: lightpink
 			border-radius: 50%
+			opacity: 0
 	.cart-basket
 		size(48px, 48px)
 		position: fixed
