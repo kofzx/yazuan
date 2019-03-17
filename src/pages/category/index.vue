@@ -41,15 +41,7 @@
 							<span class="price">{{second_cat.price}}</span>
 							<yz-cart-icon 
 								size="mini"
-								:id="second_cat.id"
-								@click="addToCart(second_cat.id)" />
-							<div 
-								class="ball"
-								:style="[ (inited && second_cat.id === contentActive) ? 'display: block; transition: all 0.4s cubic-bezier(.69,-0.25,1,.04); transform: translate3d(0, ' + offsetBottom + 'px,0);' : 'bottom: -5px; right: 0px' ]">
-								<span 
-									class="inner"
-									:style="[ (inited && second_cat.id === contentActive) ? 'display: block; transition: all 0.4s linear; transform: translate3d( ' + -offsetRight + 'px,0,0);' : '' ]"></span>
-							</div>
+								@click="addToCart" />
 						</div>
 					</div>
 				</div>
@@ -57,6 +49,13 @@
 			<div class="contents__grandson__item--hack"></div>
 		</scroll-view>
 		<div class="cart-basket"></div>
+		<div 
+			class="ball"
+			:style="[ inited ? 'display: block; transition: all 0.5s ease-in; transform: translate3d(0, ' + offsetY + 'px,0); top: ' + ballY + 'px;' : '' ]">
+			<span 
+				class="inner"
+				:style="[ inited ? 'display: block; transition: all 0.4s linear; transform: translate3d( ' + offsetX + 'px,0,0); left: ' + ballX + 'px' : '' ]"></span>
+		</div>
 	</div>
 </template>
 
@@ -73,11 +72,12 @@
 				contents: [],
 				cateObject: {},
 				cateActive: 1,
-				contentActive: 0,
-				offsetRight: 0,
-				offsetBottom: 0,
 				cartBasketRect: {},		// 购物车篮的rect信息
-				inited: true,
+				inited: false,
+				offsetX:0,
+				offsetY: 0,
+				ballX: 0,
+				ballY: 0,
 			}
 		},
 		methods: {
@@ -103,28 +103,25 @@
 				});
 			},
 			// 添加购物车
-			async addToCart (id) {
-				this.contentActive = id;
+			addToCart (e) {
 				this.inited = true;
+				const ballX = e.mp.touches[0].clientX - 10,
+					  ballY = e.mp.touches[0].clientY - 10;
 
-				const cartBasketRect = this.cartBasketRect;
-				let rect = await this.getRect(`cartIcon${id}`);
+				this.ballX = ballX;
+				this.ballY = ballY;
 
-				this.offsetRight = (cartBasketRect.right + cartBasketRect.width - rect.right + rect.width) / 1.5;
-				this.offsetBottom = cartBasketRect.top - rect.top + rect.height;
+				this.offsetX = -Math.abs(this.cartBasketRect.left - ballX + 10);
+				this.offsetY = Math.abs(this.cartBasketRect.top - ballY - 10);
 
 				setTimeout(() => {
 					this.inited = false;
-				}, 400);
+				}, 500);
 			},
-			/**
-			 * 获取对应className的rect信息
-			 * @return rect
-			*/
-			getRect (className) {
+			getBasketRect () {
 				return new Promise(resolve => {
 					wx.createSelectorQuery()
-						.selectAll('.' + className)
+						.selectAll('.cart-basket')
 						.boundingClientRect(rects => {
 				      		rects.map(rect => {
 				      			resolve(rect);
@@ -132,14 +129,11 @@
 				    	}).exec();
 				})
 			},
-			async getCartBasketRect () {
-				return this.getRect('cart-basket');
-			}
 		},
 		async onLoad () {
 			this._setActive(1);
 			this.loadContents(1);
-			this.cartBasketRect = await this.getCartBasketRect();
+			this.cartBasketRect = await this.getBasketRect();
 		},
 		components: {
 			'yz-cart-icon': cartIcon
@@ -233,20 +227,20 @@
 		bottom: -5px
 		z-index: 1
 	.ball
-		position: absolute
-		right: 0
-		bottom: -5px
+		position: fixed
 		.inner
-			display: inline-block
+			position: fixed
 			size(20px, 20px)
-			background-color: red
+			display: block
+			background-color: lightpink
 			border-radius: 50%
 	.cart-basket
 		size(48px, 48px)
 		position: fixed
-		right: 36px
+		right: 16px
 		bottom: 43px
 		box-shadow: 0px -4px 16px 0px rgba(39,39,39,0.15), 0px 7px 16px 0px rgba(39,39,39,0.15)
 		border-radius: 50%
 		background-color: #ffffff
+		z-index: 1
 </style>
