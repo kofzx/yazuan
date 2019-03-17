@@ -42,14 +42,7 @@
 							<yz-cart-icon 
 								size="mini"
 								:id="second_cat.id"
-								@click="addToCart(second_cat.id)" />
-							<div 
-								class="ball"
-								:style="[ (inited && second_cat.id === contentActive) ? 'display: block; transition: all 0.4s cubic-bezier(.69,-0.25,1,.04); transform: translate3d(0, ' + offsetBottom + 'px,0);' : 'bottom: -5px; right: 0px' ]">
-								<span 
-									class="inner"
-									:style="[ (inited && second_cat.id === contentActive) ? 'display: block; transition: all 0.4s linear; transform: translate3d( ' + -offsetRight + 'px,0,0);' : '' ]"></span>
-							</div>
+								@click="addToCart" />
 						</div>
 					</div>
 				</div>
@@ -57,6 +50,15 @@
 			<div class="contents__grandson__item--hack"></div>
 		</scroll-view>
 		<div class="cart-basket"></div>
+		<div 
+			class="ball"
+			:animation="animationY"
+			:style="[ 'top: ' + ballY + 'px'  ]">
+			<span 
+				class="inner"
+				:animation="animationX"
+				:style="[ 'left: ' + ballX + 'px'  ]"></span>
+		</div>
 	</div>
 </template>
 
@@ -74,10 +76,10 @@
 				cateObject: {},
 				cateActive: 1,
 				contentActive: 0,
-				offsetRight: 0,
-				offsetBottom: 0,
 				cartBasketRect: {},		// 购物车篮的rect信息
-				inited: true,
+				inited: false,
+				ballX: 0,
+				ballY: 0,
 			}
 		},
 		methods: {
@@ -103,19 +105,53 @@
 				});
 			},
 			// 添加购物车
-			async addToCart (id) {
-				this.contentActive = id;
-				this.inited = true;
+			addToCart (e) {
+				const ballX = e.mp.touches[0].clientX,
+			          ballY = e.mp.touches[0].clientY;
+			    this.createAnimation(ballX, ballY);
+			},
+			createAnimation (ballX, ballY) {
+				let bottomX = this.cartBasketRect.left + this.cartBasketRect.width / 2 - 10,
+			        bottomY = this.cartBasketRect.top,
+			        animationX = this.flyX(bottomX, ballX),      // 创建小球水平动画
+			        animationY = this.flyY(bottomY, ballY);       // 创建小球垂直动画
 
-				const cartBasketRect = this.cartBasketRect;
-				let rect = await this.getRect(`cartIcon${id}`);
+			    this.ballX = ballX;
+			    this.ballY = ballY;
+			    this.inited = true;
 
-				this.offsetRight = (cartBasketRect.right + cartBasketRect.width - rect.right + rect.width) / 1.5;
-				this.offsetBottom = cartBasketRect.top - rect.top + rect.height;
-
-				setTimeout(() => {
-					this.inited = false;
-				}, 400);
+			    this.setDelayTime(100).then(() => {
+			      // 100ms延时,  确保小球已经显示
+			      this.animationX = animationX.export();
+			      this.animationY = animationY.export();
+			      // 400ms延时, 即小球的抛物线时长
+			      return this.setDelayTime(400);
+			    }).then(() => {
+			    	this.animationX = this.flyX(0, 0, 0).export();
+			    	this.animationY = this.flyY(0, 0, 0).export();
+			    	this.inited = false;
+			    })
+			},
+			setDelayTime(sec) {
+			    return new Promise((resolve, reject) => {
+			      setTimeout(() => {resolve()}, sec)
+			    });
+			},
+			flyX (bottomX, ballX, duration = 400) {
+			    let animation = wx.createAnimation({
+			      duration: duration,
+			      timingFunction: 'linear',
+			    })
+			    animation.translateX(bottomX - ballX).step();
+			    return animation;
+			},
+			flyY (bottomY, ballY, duration = 400) {
+			    let animation = wx.createAnimation({
+			      duration: duration,
+			      timingFunction: 'ease-in',
+			    })
+			    animation.translateY(bottomY - ballY).step();
+			    return animation;
 			},
 			/**
 			 * 获取对应className的rect信息
@@ -149,6 +185,10 @@
 
 <style lang="stylus">
 	$contents__grandson__item-h = 79.5px
+	.show 
+		display: block !important
+	.hide 
+		display: none !important
 	// 左侧分类
 	.categories
 		size(85px, 667px)
@@ -233,10 +273,9 @@
 		bottom: -5px
 		z-index: 1
 	.ball
-		position: absolute
-		right: 0
-		bottom: -5px
+		position: fixed
 		.inner
+			position: fixed
 			display: inline-block
 			size(20px, 20px)
 			background-color: red

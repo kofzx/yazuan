@@ -16,8 +16,9 @@
 			id: String | Number,
 		},
 		methods: {
-			onClick () {
-				this.$emit("click");
+			onClick (e) {
+				e.mp.currentTarget.id = this.$props.id;
+				this.$emit("click", e);
 			}
 		}
 	}
