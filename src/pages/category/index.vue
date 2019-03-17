@@ -43,9 +43,13 @@
 								size="mini"
 								:id="second_cat.id"
 								@click="addToCart(second_cat.id)" />
-							<span 
+							<div 
 								class="ball"
-								:style="[ (inited && second_cat.id === contentActive) ? 'display: block; transition: all 0.4s cubic-bezier(.14,.57,.45,1); bottom: ' + -offsetBottom + 'px; right: ' + offsetRight + 'px' : 'bottom: -5px; right: 0px' ]"></span>
+								:style="[ (inited && second_cat.id === contentActive) ? 'display: block; transition: all 0.4s cubic-bezier(.69,-0.25,1,.04); transform: translate3d(0, ' + offsetBottom + 'px,0);' : 'bottom: -5px; right: 0px' ]">
+								<span 
+									class="inner"
+									:style="[ (inited && second_cat.id === contentActive) ? 'display: block; transition: all 0.4s linear; transform: translate3d( ' + -offsetRight + 'px,0,0);' : '' ]"></span>
+							</div>
 						</div>
 					</div>
 				</div>
@@ -73,7 +77,7 @@
 				offsetRight: 0,
 				offsetBottom: 0,
 				cartBasketRect: {},		// 购物车篮的rect信息
-				inited: false,
+				inited: true,
 			}
 		},
 		methods: {
@@ -229,13 +233,14 @@
 		bottom: -5px
 		z-index: 1
 	.ball
-		size(20px, 20px)
-		display: inline-block
 		position: absolute
-		background-color: red
-		border-radius: 50%
 		right: 0
 		bottom: -5px
+		.inner
+			display: inline-block
+			size(20px, 20px)
+			background-color: red
+			border-radius: 50%
 	.cart-basket
 		size(48px, 48px)
 		position: fixed
