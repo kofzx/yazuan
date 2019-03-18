@@ -1,13 +1,33 @@
 {
 	"pages": [
 		"pages/index/main",
-		"pages/category/main"
+		"pages/category/main",
+		"pages/goods-list/main"
 	],
 	"window": {
 		"backgroundTextStyle": "light",
 		"navigationBarBackgroundColor": "#fff",
 		"navigationBarTitleText": "雅钻珠宝",
 		"navigationBarTextStyle": "black"
+	},
+	"tabBar": {
+		"color": "#808080",
+		"selectedColor": "#ECB85E",
+		"backgroundColor": "#323232",
+		"list": [
+			{
+				"pagePath": "pages/index/main",
+				"text": "首页",
+				"iconPath": "static/tabbar/index.png",
+				"selectedIconPath": "static/tabbar/index_on.png"
+			},
+			{
+				"pagePath": "pages/category/main",
+				"text": "分类",
+				"iconPath": "static/tabbar/category.png",
+				"selectedIconPath": "static/tabbar/category_on.png"
+			}
+		]
 	},
 	"plugins": {
 		"tencentvideo": {

@@ -9,7 +9,7 @@
 				v-for="cate in cates"
 				:key="cate"
 				@click="cateChange(cate.id)">
-				{{cate.name}}
+				{{cate.type_name}}
 			</div>
 			<div class="cate cate--hack"></div>
 		</scroll-view>
@@ -29,15 +29,15 @@
 				<!-- 二级分类 -->
 				<div class="contents__child">
 					<!-- 二级分类名 -->
-					<div class="cate-name">{{first_cat.name}}</div>
+					<div class="cate-name">{{first_cat.type_name}}</div>
 					<!-- 主体内容 -->
 					<div 
 						class="contents__grandson__item"
-						v-for="(second_cat, second_cat_index) in first_cat.child"
+						v-for="(second_cat, second_cat_index) in first_cat.good"
 						:key="second_cat">
-						<img :src="second_cat.pic" class="pic">
+						<img :src="second_cat.cover" class="pic">
 						<div class="main-info">
-							<div class="name">{{second_cat.name}}</div>
+							<div class="name">{{second_cat.good_name}}</div>
 							<span class="price">{{second_cat.price}}</span>
 							<yz-cart-icon 
 								size="mini"
@@ -48,7 +48,8 @@
 			</block>
 			<div class="contents__grandson__item--hack"></div>
 		</scroll-view>
-		<div class="cart-basket"></div>
+		<!-- cart-fixed -->
+		<yz-cart-fixed :num="cartNums" />
 		<div 
 			class="ball"
 			v-for="ball in balls"
@@ -62,8 +63,11 @@
 </template>
 
 <script>
-	import data from './data';
+	import { get } from 'api';
+	import store from '@/store';
+	import throttle from 'utils/throttle';
 	import cartIcon from 'components/cart-icon/index.vue';
+	import cartFixed from 'components/cart-fixed/index.vue';
 
 	const BALLS_LENGTH = 5,
 		  BALL_HALF = 10;
@@ -79,8 +83,7 @@
 		name: '',
 		data () {
 			return {
-				cates: data.cates,
-				categories: data.categories,
+				cates: [],
 				contents: [],
 				cateObject: {},
 				cateActive: 1,
@@ -90,6 +93,7 @@
 				ballX: 0,
 				ballY: 0,
 				balls: getBalls(),
+				cartNums: store.state.cartNums
 			}
 		},
 		methods: {
@@ -97,33 +101,45 @@
 				this.cateActive = id;
 				const index = this.cates.findIndex(cate => cate.id === id);
 
-				this.$set(this.cateObject, "name", this.cates[index].name);
-				this.$set(this.cateObject, "pic", this.cates[index].pic);
+				this.$set(this.cateObject, "name", this.cates[index].type_name);
+				this.$set(this.cateObject, "pic", this.cates[index].iocn);
 			},
 			// 分类点击事件
 			cateChange (id) {
 				this._setActive(id);
 				this.loadContents(id);
 			},
+			// 加载分类
+			loadCates () {
+				return new Promise(resolve => {
+					get('good/type', { pid: 0 })
+						.then(res => {
+							this.cates = res.data;
+							resolve(res.data[0].id);
+						})
+				})
+			},
 			// 加载右侧内容
 			loadContents (id) {
-				wx.request({
-					url: "http://www.localtest_yazuan.com/category.php?id=" + id,
-					success: res => {
+				get('good/typegood', { id: id })
+					.then(res => {
 						this.contents = res.data;
-					}
-				});
+					})
 			},
 			// 添加购物车
-			addToCart (e) {
+			addToCart: throttle(function(e) {
 				const ballX = e.mp.touches[0].clientX - BALL_HALF,
-					  ballY = e.mp.touches[0].clientY - BALL_HALF;
+					  ballY = e.mp.touches[0].clientY - BALL_HALF,
+					  cartX = this.cartBasketRect.left,
+					  cartY = this.cartBasketRect.top;
+
+				if (ballY > cartY) return false;
 
 				this.ballX = ballX;
 				this.ballY = ballY;
 
-				this.offsetX = -Math.abs(this.cartBasketRect.left - ballX + BALL_HALF);
-				this.offsetY = Math.abs(this.cartBasketRect.top - ballY - BALL_HALF);
+				this.offsetX = -Math.abs(cartX - ballX + BALL_HALF);
+				this.offsetY = Math.abs(cartY - ballY - BALL_HALF);
 
 				for (let i = 0; i < BALLS_LENGTH; i++) {
 					const ball = this.balls[i];
@@ -132,11 +148,14 @@
 
 						setTimeout(() => {
 							ball.inited = false;
+							// 购物车数量+1
+							store.commit('incrementCartNums');
+							this.cartNums = store.state.cartNums;
 						}, 500);
 			            break;
 			        }
 				}
-			},
+			}, 500),
 			getBasketRect () {
 				return new Promise(resolve => {
 					wx.createSelectorQuery()
@@ -150,12 +169,14 @@
 			},
 		},
 		async onLoad () {
-			this._setActive(1);
-			this.loadContents(1);
+			let cate_id = await this.loadCates();
+			this._setActive(cate_id);
+			this.loadContents(cate_id);
 			this.cartBasketRect = await this.getBasketRect();
 		},
 		components: {
-			'yz-cart-icon': cartIcon
+			'yz-cart-icon': cartIcon,
+			'yz-cart-fixed': cartFixed,
 		}
 	}
 </script>
@@ -254,13 +275,4 @@
 			background-color: lightpink
 			border-radius: 50%
 			opacity: 0
-	.cart-basket
-		size(48px, 48px)
-		position: fixed
-		right: 16px
-		bottom: 43px
-		box-shadow: 0px -4px 16px 0px rgba(39,39,39,0.15), 0px 7px 16px 0px rgba(39,39,39,0.15)
-		border-radius: 50%
-		background-color: #ffffff
-		z-index: 1
 </style>

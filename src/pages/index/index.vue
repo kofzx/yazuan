@@ -74,23 +74,8 @@
 			<div class="title-box bkc-white">
 				<yz-theme-title title="珠宝热卖" />
 			</div>
-			<ul class="selling-goods clearfix bkc-white">
-				<li 
-					class="selling-goods__item"
-					v-for="goods in sellingGoods"
-					:key="goods">
-					<img :src="goods.img" class="goods">
-					<div class="info-box">
-						<div class="name">{{goods.name}}</div>
-						<div class="main-info">
-							<div class="price">{{goods.price}}</div>
-							<div class="sold-count">已售出{{goods.sold_count}}件</div>
-							<yz-cart-icon />
-						</div>
-					</div>
-				</li>
-			</ul>
-			<div class="more-box bkc-white">
+			<selling-goods :data="sellingGoods" />
+			<div class="more-box bkc-white" @click="goGoodsList">
 				<span class="text">查看更多</span>
 				<span class="more"></span>
 			</div>
@@ -129,7 +114,7 @@
 
 <script>
 	import themeTitle from 'components/theme-title/index.vue';
-	import cartIcon from 'components/cart-icon/index.vue';
+	import sellingGoods from 'templates/selling-goods.vue';
 
 	export default {
 		name: 'index',
@@ -193,11 +178,16 @@
 
 				this.showCustomPlayBtn = false;
 				this.showControls = true;
+			},
+			goGoodsList () {
+				wx.navigateTo({
+					url: '../goods-list/main'
+				});
 			}
 		},
 		components: {
 			'yz-theme-title': themeTitle,
-			'yz-cart-icon': cartIcon,
+			'selling-goods': sellingGoods,
 		}
 	}
 </script>
@@ -329,39 +319,6 @@
 			.more
 				size(13px, 13px)
 				bg-image($more)
-	.selling-goods__item
-		size(187.5px, 260px)
-		flex-column()
-		justify-content: space-between
-		float: left
-		box-sizing: border-box
-		border-top: 1px solid #E6E6E6
-		border-bottom: 1px solid #E6E6E6
-		margin-top: -1px
-		padding: 0 23px 19px 15px
-		&:nth-child(odd)
-			border-right: 1px solid #E6E6E6
-		.goods
-			size(168px, 143px)
-			margin-top: 3px
-		.info-box
-			.name
-				font-size: 12px
-				color: #333333
-				line-height: 17px
-				margin-bottom: 11px
-				overflow-line(2)
-			.main-info
-				position: relative
-				.price
-					font-size: 12px
-					font-weight: bold
-					color: #FA4A1F
-					margin-bottom: 9px
-					yuan()
-				.sold-count
-					font-size: 10px
-					color: #B3B3B3
 	// 尊享定制
 	.customize-box		
 		size(375px, 198px)
