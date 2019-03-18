@@ -93,10 +93,17 @@
 				ballX: 0,
 				ballY: 0,
 				balls: getBalls(),
-				cartNums: store.state.cartNums
+			}
+		},
+		computed: {
+			cartNums() {
+				return store.state.cartNums;
 			}
 		},
 		methods: {
+			addCart() {
+				store.dispatch('addCart');
+			},
 			_setActive (id) {
 				this.cateActive = id;
 				const index = this.cates.findIndex(cate => cate.id === id);
@@ -149,8 +156,7 @@
 						setTimeout(() => {
 							ball.inited = false;
 							// 购物车数量+1
-							store.commit('incrementCartNums');
-							this.cartNums = store.state.cartNums;
+							this.addCart();
 						}, 500);
 			            break;
 			        }
