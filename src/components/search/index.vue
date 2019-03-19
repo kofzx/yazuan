@@ -2,7 +2,7 @@
 	<div class="search-box">
 	  <form>
 	    <div class="wrapper">
-	      <image class="search-icon" src="" />
+	      <img class="search-icon" src="./search.png" />
 	      <input 
 	      	class="input" 
 	      	:placeholder="plc"
@@ -53,12 +53,12 @@
 					width: 31rpx
 					height: 31rpx
 					float: left
-					margin-left: 3.8%
+					margin-left: 20px
 					position: absolute
 					top: 20rpx
 					left: 0rpx
 				.input
-					width: 88%
+					width: 86.5%
 					height: 33px
 					font-size: 13px
 					float: right

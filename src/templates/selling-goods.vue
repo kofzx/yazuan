@@ -50,7 +50,7 @@
 		.info-box
 			.name
 				font-size: 12px
-				color: #333333
+				color: $theme-black
 				line-height: 17px
 				margin-bottom: 11px
 				overflow-line(2)
@@ -59,10 +59,14 @@
 				.price
 					font-size: 12px
 					font-weight: bold
-					color: #FA4A1F
+					color: $active-red
 					margin-bottom: 9px
 					yuan()
 				.sold-count
 					font-size: 10px
 					color: #B3B3B3
+	.cart-icon
+		right: 0
+		top: 50%
+		transform: translate3d(0,-50%,0)
 </style>

@@ -109,12 +109,15 @@
 				</txv-video>
 			</div>
 		</div>
+		<yz-cart-fixed :num="cartNums" />
 	</div>
 </template>
 
 <script>
+	import Storage from 'utils/Storage'
 	import themeTitle from 'components/theme-title/index.vue';
 	import sellingGoods from 'templates/selling-goods.vue';
+	import cartFixed from 'components/cart-fixed/index.vue';
 
 	export default {
 		name: 'index',
@@ -122,6 +125,7 @@
 			return {
 				swiperCurrent: 0,
 				statementTags: ['质量保证', '服务保证', '售后无忧'],
+				cartNums: 0,
 				categories: [
 					{ img: require('../../images/index/cat1.png'), name: '戒指' },
 					{ img: require('../../images/index/cat2.png'), name: '项链' },
@@ -185,8 +189,16 @@
 				});
 			}
 		},
+		onShow () {
+			Storage
+				.get('cartNums')
+				.then(data => {
+					this.cartNums = data;
+				})
+		},
 		components: {
 			'yz-theme-title': themeTitle,
+			'yz-cart-fixed': cartFixed,
 			'selling-goods': sellingGoods,
 		}
 	}
@@ -209,10 +221,10 @@
 		.dot
 			size(7px, 7px)
 			margin: 0 $margin-s
-			background-color: #ffffff 
+			background-color: $white 
 			border-radius: 50%
 			&.active 
-				background-color: #ECB85E
+				background-color: $theme-gold
 	// 陈述信息
 	.statement-tag-box
 		flex-row()
@@ -230,7 +242,7 @@
 			bg-image($tick)
 		.text
 			font-size: 11px
-			color: #333333
+			color: $theme-black
 	// 分类导航
 	.category-nav-box
 		size(375px, 110px)
@@ -242,7 +254,7 @@
 			margin-bottom: $margin-x
 		.cat-name
 			font-size: 12px
-			color: #333333
+			color: $theme-black
 			max-width: 60px
 			overflow-line(1)
 	// 新品上市
@@ -266,7 +278,7 @@
 		justify-content: space-between
 		size(110px, 150px)
 		flex: 0 0 110px
-		background-color: #ffffff
+		background-color: $white
 		margin-bottom: 7.5px
 		z-index: -2
 		.product
@@ -278,7 +290,7 @@
 		.name
 			font-size: 11px
 			font-weight: bold
-			color: #333333
+			color: $theme-black
 			margin-top: 13px
 			margin-bottom: $margin-s
 			margin-left: auto
@@ -289,7 +301,7 @@
 		.cart
 			display: inline-block
 			size(18px, 18px)
-			background-color: #FA4A1F
+			background-color: $active-red
 			border-radius: 50%
 			position: relative
 			&::before
@@ -314,7 +326,7 @@
 			size(375px, 45px)
 			.text
 				font-size: 12px
-				color: #333333
+				color: $theme-black
 				margin-right: 6.5px
 			.more
 				size(13px, 13px)
@@ -345,8 +357,4 @@
 				vh-center()
 				top: 46%
 				left: 49%
-	.cart-icon
-		right: 0
-		top: 50%
-		transform: translate3d(0,-50%,0)
 </style>

@@ -2,6 +2,7 @@
 	"pages": [
 		"pages/index/main",
 		"pages/category/main",
+		"pages/cart/main",
 		"pages/goods-list/main"
 	],
 	"window": {
@@ -26,6 +27,12 @@
 				"text": "分类",
 				"iconPath": "static/tabbar/category.png",
 				"selectedIconPath": "static/tabbar/category_on.png"
+			},
+			{
+				"pagePath": "pages/cart/main",
+				"text": "购物车",
+				"iconPath": "static/tabbar/cart.png",
+				"selectedIconPath": "static/tabbar/cart_on.png"
 			}
 		]
 	},

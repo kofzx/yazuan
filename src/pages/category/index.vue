@@ -41,14 +41,13 @@
 							<span class="price">{{second_cat.price}}</span>
 							<yz-cart-icon 
 								size="mini"
-								@click="addToCart" />
+								@click="addToCart($event, second_cat)" />
 						</div>
 					</div>
 				</div>
 			</block>
 			<div class="contents__grandson__item--hack"></div>
 		</scroll-view>
-		<!-- cart-fixed -->
 		<yz-cart-fixed :num="cartNums" />
 		<div 
 			class="ball"
@@ -64,7 +63,7 @@
 
 <script>
 	import { get } from 'api';
-	import store from '@/store';
+	import Storage from 'utils/Storage'
 	import throttle from 'utils/throttle';
 	import cartIcon from 'components/cart-icon/index.vue';
 	import cartFixed from 'components/cart-fixed/index.vue';
@@ -93,17 +92,10 @@
 				ballX: 0,
 				ballY: 0,
 				balls: getBalls(),
-			}
-		},
-		computed: {
-			cartNums() {
-				return store.state.cartNums;
+				cartNums: 0,
 			}
 		},
 		methods: {
-			addCart() {
-				store.dispatch('addCart');
-			},
 			_setActive (id) {
 				this.cateActive = id;
 				const index = this.cates.findIndex(cate => cate.id === id);
@@ -134,7 +126,7 @@
 					})
 			},
 			// 添加购物车
-			addToCart: throttle(function(e) {
+			addToCart: throttle(function(e, item) {
 				const ballX = e.mp.touches[0].clientX - BALL_HALF,
 					  ballY = e.mp.touches[0].clientY - BALL_HALF,
 					  cartX = this.cartBasketRect.left,
@@ -153,10 +145,14 @@
 					if (!ball.inited) {
 			            ball.inited = true;
 
-						setTimeout(() => {
+						setTimeout(async () => {
 							ball.inited = false;
 							// 购物车数量+1
-							this.addCart();
+							let cart = await Storage.get('cart');
+							this.cartNums += 1;
+							cart.push(item);
+							Storage.set('cartNums', this.cartNums);
+							Storage.set('cart', cart);
 						}, 500);
 			            break;
 			        }
@@ -180,6 +176,13 @@
 			this.loadContents(cate_id);
 			this.cartBasketRect = await this.getBasketRect();
 		},
+		onShow () {
+			Storage
+				.get('cartNums')
+				.then(data => {
+					this.cartNums = data;
+				})
+		},
 		components: {
 			'yz-cart-icon': cartIcon,
 			'yz-cart-fixed': cartFixed,
@@ -202,9 +205,9 @@
 			box-sizing: border-box
 			border-left: 3px solid transparent
 			&.active
-				color: #ECB85E
-				background-color: #ffffff
-				border-left-color: #ECB85E
+				color: $theme-gold
+				background-color: $white
+				border-left-color: $theme-gold
 			&.cate--hack
 				height: @height * 2
 	// 右侧分类信息
@@ -224,12 +227,12 @@
 			.cate-name
 				font-size: 16px
 				font-weight: bold
-				color: #FFFFFF
+				color: $white
 				margin: 0 $margin-x
 				z-index: 1
 			.short-line
 				width: 33.5px
-				border-top: 2px solid #FFFFFF
+				border-top: 2px solid $white
 				z-index: 1
 			.cate-pic
 				full()
@@ -257,12 +260,12 @@
 					.name
 						font-size: 14px
 						font-weight: bold
-						color: #333333
+						color: $theme-black
 						overflow-line(2)
 					.price
 						font-size: 11px
 						font-weight: bold
-						color: #FA4A1F
+						color: $active-red
 						yuan()
 						&::before
 							margin-right: 6px
