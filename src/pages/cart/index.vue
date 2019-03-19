@@ -25,23 +25,22 @@
 				</div>
 			</checkbox-group>
 		</div>
-		<div class="total-box bkc-white clearfix" v-show="cartNums">
-			<div class="checkbox">
+		<!-- submit-bar -->
+		<yz-submit-bar
+			:show="cartNums"
+			:price="40996"
+			:buttonText="'结算(' + cartNums + ')'">
+			<div class="my-checkbox">
 				<icon type="success" size="18" color="#ECB85E" class="icon"></icon>
 				<span class="text">全选</span>
 			</div>
-			<div class="settlement">结算(2)</div>
-			<div class="total">
-				<span class="text">合计： </span>
-				<span class="price">40666</span>
-			</div>
-		</div>
-		<div class="total-box--blank"></div>
+		</yz-submit-bar>
 	</div>
 </template>
 
 <script>
-	import Storage from 'utils/Storage'
+	import Storage from 'utils/Storage';
+	import submitBar from 'components/submit-bar/index.vue';
 
 	export default {
 		name: 'cart',
@@ -56,12 +55,14 @@
 				.then(data => {
 					this.cartNums = data;
 				})
+		},
+		components: {
+			'yz-submit-bar': submitBar
 		}
 	}
 </script>
 
 <style lang="stylus">
-	$total-box-height = 55px
 	bold-font()
 		font-size: 14px
 		font-weight: bold
@@ -120,47 +121,15 @@
 					font-size: 12px
 					color: #666666
 					count()
-	// 底部结算
-	.total-box--blank
-		height: $total-box-height
-	.total-box
-		size(375px, $total-box-height)
-		position: fixed
-		left: 0
-		bottom: 0
-		.checkbox
-			float: left
-			line-height: $total-box-height
-			.icon
-				position: relative
-				top: 5px
-				margin-left: 15px
-			.text
-				bold-font()
-				color: $theme-black
-				margin-left: $margin-m
-		.total,
-		.settlement
-			float: right
-		.total
-			line-height: $total-box-height
-			.text
-				bold-font()
-				color: #3B3B3B
-			.price
-				font-size: 16px
-				font-weight: bold
-				color: $active-red
-				yuan()
-				&::before
-					font-size: 1em
-					margin-right: 2px
-		.settlement
-			size(105px, $total-box-height)
-			text-align: center
-			line-height: $total-box-height
-			bold-font()
-			color: #96580A
-			background-color: $theme-gold
+	.my-checkbox
+		float: left
+		line-height: 55px
+		.icon
+			position: relative
+			top: 5px
 			margin-left: 15px
+		.text
+			bold-font()
+			color: $theme-black
+			margin-left: $margin-m
 </style>
