@@ -11,6 +11,7 @@
 			:class="{'input--disabled': disabled}"
 			:disabled="disabled"
 			:value="value"
+			@input="onInput"
 			@blur="onBlur">
 		<div 
 			class="plus" 
@@ -46,7 +47,18 @@
 				return this.$props.value >= this.$props.max;
 			},
 		},
+		watch: {
+			value (value) {
+	            if (value !== '') {
+	            	this.value = this.range(value);
+	            }
+	        }
+		},
 		methods: {
+			// 取一个合法的value值
+			range (value) {
+	            return Math.max(Math.min(this.$props.max, value), this.$props.min);
+	        },
 			onMinus () {
 				if (this.minusDisabled) return;
 				this.$emit('minus');
@@ -55,19 +67,14 @@
 				if (this.plusDisabled) return;
 				this.$emit('plus');
 			},
-			onBlur (e) {
+			onInput (e) {
 				const value = parseInt(e.mp.detail.value);
-				const { min, max } = this.$props;
-				if (value < min) {
-					this.value = min;
-					this.$emit('overlimit', 'min', min);
-					return;
-				} 
-				if (value > max) {
-					this.value = max;
-					this.$emit('overlimit', 'max', max);
-					return;
-				}
+				this.value = value;
+				this.$emit('input', e);
+			},
+			onBlur (e) {
+				const value = this.range(parseInt(e.mp.detail.value));
+				this.value = value;
 				this.$emit('blur', e);
 			},
 		}
