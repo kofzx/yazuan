@@ -4,11 +4,11 @@
 		<div class="top-edit--blank">
 			<div class="top-edit bkc-white" v-show="cart.length">
 				<div class="checkbox">
-					<!-- <yz-check-icon 
+					<yz-check-icon 
 						:checked="checkAll"
-						@check="onCheckAll" /> -->
-					<!-- <img src="../../images/cart/store.png"> -->
-					<!-- <span class="text">雅钻珠宝服务平台</span> -->
+						@check="onCheckAll" />
+					<img src="../../images/cart/store.png">
+					<span class="text">雅钻珠宝服务平台</span>
 				</div>
 				<span class="edit" @click="isEdit = !isEdit">{{isEdit ? '完成' : '编辑'}}</span>
 			</div>
