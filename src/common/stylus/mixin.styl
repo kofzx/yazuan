@@ -25,6 +25,14 @@ yuan()
 count()
 	&::before
 		content: 'x'
+click-area-increase(radius)
+	&::before
+		content: ''
+		position: absolute
+		top: radius * -1
+		right: radius * -1
+		bottom: radius * -1
+		left: radius * -1
 flex-row()
 	display: flex
 	flex-direction: row

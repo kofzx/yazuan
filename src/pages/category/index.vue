@@ -41,7 +41,7 @@
 							<span class="price">{{second_cat.price}}</span>
 							<yz-cart-icon 
 								size="mini"
-								@click="addToCart($event, second_cat)" />
+								@click="addToCart($event, second_cat, second_cat_index)" />
 						</div>
 					</div>
 				</div>
@@ -92,10 +92,24 @@
 				ballX: 0,
 				ballY: 0,
 				balls: getBalls(),
-				cartNums: 0,
+				cart: 0,
+			}
+		},
+		computed: {
+			cartNums () {
+				let cart = this.cart;
+				let totalNums = 0;
+
+				cart.length && cart.forEach(item => totalNums += item.good_num);
+				return totalNums;
 			}
 		},
 		methods: {
+			/**
+			 * 设置active项目，除了设置id以外，还需要更新一级分类名称及图片
+			 * @private
+			 * @param id: Number 分类id
+			 */
 			_setActive (id) {
 				this.cateActive = id;
 				const index = this.cates.findIndex(cate => cate.id === id);
@@ -118,15 +132,29 @@
 						})
 				})
 			},
-			// 加载右侧内容
+			// 加载右侧主体内容
 			loadContents (id) {
 				get('good/typegood', { id: id })
 					.then(res => {
 						this.contents = res.data;
 					})
 			},
+			/**
+			 * 更新good_num商品数量
+			 * @private
+			 * @param  item: Object 商品条目
+			 * @return item: Object 商品条目
+			 */
+			_updateGoodNum (item) {
+				if (item.hasOwnProperty('good_num')) {
+					item.good_num += 1;
+				} else {
+					item.good_num = 1;
+				}
+				return item;
+			},
 			// 添加购物车
-			addToCart: throttle(function(e, item) {
+			addToCart: throttle(function(e, item, index) {
 				const ballX = e.mp.touches[0].clientX - BALL_HALF,
 					  ballY = e.mp.touches[0].clientY - BALL_HALF,
 					  cartX = this.cartBasketRect.left,
@@ -148,16 +176,22 @@
 						setTimeout(async () => {
 							ball.inited = false;
 							// 购物车数量+1
+							const updateItem = this._updateGoodNum(item);
 							let cart = await Storage.get('cart');
-							this.cartNums += 1;
-							cart.push(item);
-							Storage.set('cartNums', this.cartNums);
+							if (cart.length > 0) {
+								cart[index] = updateItem;
+							} else {
+								cart.push(updateItem);
+							}
+							
+							this.cart = cart;
 							Storage.set('cart', cart);
 						}, 500);
 			            break;
 			        }
 				}
 			}, 500),
+			// 获取购物车蓝的坐标信息
 			getBasketRect () {
 				return new Promise(resolve => {
 					wx.createSelectorQuery()
@@ -178,9 +212,9 @@
 		},
 		onShow () {
 			Storage
-				.get('cartNums')
+				.get('cart')
 				.then(data => {
-					this.cartNums = data;
+					this.cart = data;
 				})
 		},
 		components: {

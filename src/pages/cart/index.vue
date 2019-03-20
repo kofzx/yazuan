@@ -1,37 +1,72 @@
 <template>
 	<div>
-		<div v-show="!cartNums"></div>
-		<div class="bkc-white" v-show="cartNums">
-			<div class="top-edit">
+		<!-- 编辑 -->
+		<div class="top-edit--blank">
+			<div class="top-edit bkc-white" v-show="cart.length">
 				<div class="checkbox">
-					<icon type="success" size="18" color="#ECB85E"></icon>
+					<yz-check-icon 
+						:checked="checkAll"
+						@check="onCheckAll" />
 					<img src="../../images/cart/store.png">
 					<span class="text">雅钻珠宝服务平台</span>
 				</div>
-				<span class="edit">编辑</span>
+				<span class="edit" @click="isEdit = !isEdit">{{isEdit ? '完成' : '编辑'}}</span>
 			</div>
-			<checkbox-group class="shopping-list">
-				<div class="shopping-list__item">
-					<icon type="success" size="18" color="#ECB85E"></icon>
-					<img src="" class="goods">
+		</div>
+		<!-- 空白 -->
+		<div v-show="!cart.length"></div>
+		<!-- 商品 -->
+		<div class="bkc-white" v-show="cart.length">
+			<checkbox-group 
+				class="shopping-list"
+				@change="checkboxChange">
+				<div 
+					class="shopping-list__item"
+					v-for="(item, index) in cart"
+					:key="item">
+					<label class="label">
+						<checkbox
+							v-show="false"
+							:value="item.good_name"
+							:checked="item.checked"></checkbox>
+						<yz-check-icon 
+							:checked="item.checked"
+							@check="onCheck(item.checked, index)" />
+					</label>
+					<img :src="item.good_img" class="goods">
 					<div class="main-box">
-						<div class="title"></div>
-						<div class="parameters">规格：25K纯金</div>
+						<div class="desc" :style="[isEdit ? 'display: none' : 'display: flex']">
+							<div class="title">{{item.good_name}}</div>
+							<div class="parameters">规格：25K纯金</div>
+						</div>
+						<div class="desc" :style="[isEdit ? 'display: flex' : 'display: none']">
+							<yz-stepper
+								:value="item.good_num"
+								:max="50"
+								:maxlength="2"
+								@minus="onChangeNum('minus', index)"
+								@plus="onChangeNum('plus', index)"
+								@blur="onBlurNum($event, index)"
+								@overlimit="overlimit" />
+						</div>
 						<div class="info">
-							<span class="price"></span>
-							<span class="count">1</span>
+							<span class="price">{{item.price}}</span>
+							<span class="count" :style="[isEdit ? 'display: none' : 'display: block']">{{item.good_num}}</span>
 						</div>
 					</div>
+					<div class="del-box" :style="[isEdit ? 'display: flex' : 'display: none']">删除</div>
 				</div>
 			</checkbox-group>
 		</div>
-		<!-- submit-bar -->
+		<!-- 提交栏 -->
 		<yz-submit-bar
-			:show="cartNums"
-			:price="40996"
+			:show="cart.length"
+			:price="totalPrice"
 			:buttonText="'结算(' + cartNums + ')'">
 			<div class="my-checkbox">
-				<icon type="success" size="18" color="#ECB85E" class="icon"></icon>
+				<yz-check-icon 
+					:checked="checkAll"
+					@check="onCheckAll" />
 				<span class="text">全选</span>
 			</div>
 		</yz-submit-bar>
@@ -41,23 +76,132 @@
 <script>
 	import Storage from 'utils/Storage';
 	import submitBar from 'components/submit-bar/index.vue';
+	import checkIcon from 'components/check-icon/index.vue';
+	import stepper from 'components/stepper/index.vue';
 
 	export default {
 		name: 'cart',
 		data () {
 			return {
-				cartNums: 0,
+				cart: [],
+				checkAll: false,
+				isEdit: true,
 			}
 		},
+		computed: {
+			// 购物车商品数量
+			cartNums () {
+				let cart = this.cart;
+				let totalNums = 0;
+
+				cart.length && cart
+								.filter(item => item.checked)
+								.forEach(item => totalNums += item.good_num);
+				return totalNums;
+			},
+			// 总价
+			totalPrice () {
+				let cart = this.cart;
+				let _totalPrice = 0;
+
+				cart
+					.filter(item => item.checked)
+					.forEach(item => _totalPrice += item.good_num * item.price);
+				return _totalPrice;
+			},
+		},
+		methods: {
+			// checkbox的监听改变事件
+			checkboxChange (e) {
+				const check_len = e.mp.detail.value.length;
+				const cart_len = this.cart.length;
+
+				this.checkAll = check_len === cart_len;
+			},
+			// checkbox的选中事件
+			onCheck (checked, index) {
+				let cart = this.cart;
+
+				this.$set(cart[index], 'checked', !checked);
+				this.$set(cart, index, cart[index]);
+				Storage.set('cart', cart);
+			},
+			/**
+			 * 检查更新checkAll的状态，一般用于onShow
+			 * @private
+			 */
+			_checkAll () {
+				let cart = this.cart;
+				this.checkAll = cart.every(item => item.checked === true);
+			},
+			/**
+			 * 更改所有checkbox的状态，一般在“全选”使用
+			 * @private
+			 * @param  checked: Boolean 即checked的值
+			 */
+			_changeAll (checked) {
+				let cart = this.cart;
+
+				for (let i = 0; i < cart.length; i++) {
+					this.$set(cart[i], 'checked', checked);
+				}
+			},
+			// 全选事件
+			onCheckAll () {
+				let checkAll = this.checkAll;
+
+				this._changeAll(!checkAll);
+				this.checkAll = !checkAll;
+			},
+			onChangeNum (type, index) {
+				let cart = this.cart;
+				let good_num = cart[index].good_num;
+
+				switch (type) {
+					case 'minus':
+						this.$set(cart[index], 'good_num', good_num - 1);
+						break;
+					case 'plus':
+						this.$set(cart[index], 'good_num', good_num + 1);
+						break;
+				}
+				this.$set(cart, index, cart[index]);
+				Storage.set('cart', cart);
+			},
+			onBlurNum (e, index) {
+				const value = parseInt(e.mp.detail.value);
+				let cart = this.cart;
+
+				this.$set(cart[index], 'good_num', value);
+				this.$set(cart, index, cart[index]);
+				Storage.set('cart', cart);
+			},
+			overlimit (type, num) {
+				this._onShow();
+				switch (type) {
+					case 'min':
+						break;
+					case 'max':
+						this.$toast(`最多只能购买${num}个哦~`, false);
+						break;
+				}
+			},
+			_onShow () {
+				Storage
+					.get('cart')
+					.then(data => {
+						this.cart = data;
+						this._checkAll();
+					});
+			},
+		},
 		onShow () {
-			Storage
-				.get('cartNums')
-				.then(data => {
-					this.cartNums = data;
-				})
+			this._onShow();
 		},
 		components: {
-			'yz-submit-bar': submitBar
+			'yz-submit-bar': submitBar,
+			'yz-check-icon': checkIcon,
+			'yz-stepper': stepper,
 		}
 	}
 </script>
@@ -68,11 +212,17 @@
 		font-weight: bold
 	
 	// 顶部编辑
+	.top-edit--blank
+		height: 50px
 	.top-edit
 		size(375px, 50px)
 		flex-row()
 		justify-content: space-between
 		padding: 0 15px
+		position: fixed
+		top: 0
+		left: 0
+		z-index: 10
 		.checkbox
 			flex-row()
 			img
@@ -92,6 +242,10 @@
 		padding: 0 15px
 		flex-row()
 		justify-content: space-between
+		position: relative
+		.label
+			display: flex
+			size(18px, 18px)
 		.goods
 			size(78px, 85px)
 			margin: 0 15px
@@ -100,6 +254,12 @@
 			height: 69px
 			flex-column()
 			justify-content: space-between
+			align-items: flex-start
+			.desc
+				height: 43px
+				flex-column()
+				justify-content: space-between
+				align-items: flex-start
 			.title
 				font-size: 14px
 				color: $theme-black
@@ -108,6 +268,7 @@
 				font-size: 12px
 				color: #666666
 			.info
+				width: 100%
 				flex-row()
 				justify-content: space-between
 				.price
@@ -121,10 +282,20 @@
 					font-size: 12px
 					color: #666666
 					count()
+		.del-box
+			size(70px, 120px)
+			flex-row()
+			background-color: $theme-gold
+			font-size: 14px
+			color: #96580A
+			position: absolute
+			top: 0
+			right: 0
 	.my-checkbox
 		float: left
 		line-height: 55px
-		.icon
+		.check-icon,
+		.check-icon--unchecked
 			position: relative
 			top: 5px
 			margin-left: 15px

@@ -5,7 +5,6 @@
 		methods: {
 			// 设置一系列要用到的缓存
 			async setStorages () {
-				Storage.get('cartNums').catch(e => Storage.set('cartNums', 0))
 				Storage.get('cart').catch(e => Storage.set('cart', []))
 			},
 		},

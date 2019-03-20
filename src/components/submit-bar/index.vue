@@ -1,13 +1,13 @@
 <template>
-    <div class="total-box clearfix" v-show="show">
-    	<slot />
-    	<div class="total-box--blank">
-    		<div class="settlement">{{buttonText}}</div>
+	<div class="total-box--blank">
+	    <div class="total-box clearfix" v-show="show">
+	    	<slot />
+	    	<div class="settlement">{{buttonText}}</div>
 			<div class="total">
 				<span class="text">{{label}}</span>
 				<span class="price">{{price}}</span>
 			</div>
-    	</div>
+		</div>
 	</div>
 </template>
 

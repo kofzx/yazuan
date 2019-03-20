@@ -125,7 +125,7 @@
 			return {
 				swiperCurrent: 0,
 				statementTags: ['质量保证', '服务保证', '售后无忧'],
-				cartNums: 0,
+				cart: [],
 				categories: [
 					{ img: require('../../images/index/cat1.png'), name: '戒指' },
 					{ img: require('../../images/index/cat2.png'), name: '项链' },
@@ -171,6 +171,15 @@
 				showCustomPlayBtn: true,
 			}
 		},
+		computed: {
+			cartNums () {
+				let cart = this.cart;
+				let totalNums = 0;
+
+				cart.length && cart.forEach(item => totalNums += item.good_num);
+				return totalNums;
+			}
+		},
 		methods: {
 			swiperChange (e) {
 				this.swiperCurrent = e.mp.detail.current;
@@ -191,9 +200,9 @@
 		},
 		onShow () {
 			Storage
-				.get('cartNums')
+				.get('cart')
 				.then(data => {
-					this.cartNums = data;
+					this.cart = data;
 				})
 		},
 		components: {

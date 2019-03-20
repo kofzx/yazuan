@@ -18,7 +18,7 @@
 			</li>
 		</ul>
 		<selling-goods :data="sellingGoods" />
-		<yz-cart-fixed :num="cartNums" />
+		<yz-cart-fixed :num="cart.length" />
 	</div>
 </template>
 
@@ -36,7 +36,7 @@
 				sortList: ['销量', '新品', '好评', '价格'],
 				sortActive: 0,
 				priceSortBy: '',
-				cartNums: 0,
+				cart: [],
 				sellingGoods: [
 					{
 						img: require('../../images/index/selling1.png'),
@@ -100,9 +100,9 @@
 		},
 		onShow () {
 			Storage
-				.get('cartNums')
+				.get('cart')
 				.then(data => {
-					this.cartNums = data;
+					this.cart = data;
 				})
 		},
 		components: {
