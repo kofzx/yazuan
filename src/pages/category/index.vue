@@ -41,7 +41,7 @@
 							<span class="price">{{second_cat.price}}</span>
 							<yz-cart-icon 
 								size="mini"
-								@click="addToCart($event, second_cat, second_cat_index)" />
+								@click="addToCart($event, second_cat)" />
 						</div>
 					</div>
 				</div>
@@ -154,7 +154,7 @@
 				return item;
 			},
 			// 添加购物车
-			addToCart: throttle(function(e, item, index) {
+			addToCart: throttle(function(e, item) {
 				const ballX = e.mp.touches[0].clientX - BALL_HALF,
 					  ballY = e.mp.touches[0].clientY - BALL_HALF,
 					  cartX = this.cartBasketRect.left,
@@ -178,7 +178,9 @@
 							// 购物车数量+1
 							const updateItem = this._updateGoodNum(item);
 							let cart = await Storage.get('cart');
-							if (cart.length > 0) {
+
+							const index = cart.findIndex(value => value.id === item.id);
+							if (index > -1) {
 								cart[index] = updateItem;
 							} else {
 								cart.push(updateItem);

@@ -53,7 +53,10 @@
 							<span class="count" :style="[isEdit ? 'display: none' : 'display: block']">{{item.good_num}}</span>
 						</div>
 					</div>
-					<div class="del-box" :style="[isEdit ? 'display: flex' : 'display: none']">删除</div>
+					<div 
+						class="del-box" 
+						:style="[isEdit ? 'display: flex' : 'display: none']"
+						@click="onDel(index)">删除</div>
 				</div>
 			</checkbox-group>
 		</div>
@@ -84,7 +87,7 @@
 			return {
 				cart: [],
 				checkAll: false,
-				isEdit: true,
+				isEdit: false,
 			}
 		},
 		computed: {
@@ -184,14 +187,26 @@
 
 				this._setCart(index, 'good_num', value);
 			},
+			// 删除事件
+			onDel (index) {
+				console.log('onDel');
+				let cart = this.cart;
+
+				cart.splice(index, 1);
+				Storage.set('cart', cart);
+				this._onShow();
+			},
+			_onShow () {
+				Storage
+					.get('cart')
+					.then(data => {
+						this.cart = data;
+						this._checkAll();
+					});
+			},
 		},
 		onShow () {
-			Storage
-				.get('cart')
-				.then(data => {
-					this.cart = data;
-					this._checkAll();
-				});
+			this._onShow();
 		},
 		components: {
 			'yz-submit-bar': submitBar,
